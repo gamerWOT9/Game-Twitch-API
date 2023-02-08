@@ -1,0 +1,59 @@
+<html>
+  <head>
+    <style>
+      canvas {
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="game-board" width="500" height="500"></canvas>
+    <script>
+      const canvas = document.getElementById("game-board");
+      const ctx = canvas.getContext("2d");
+      
+      // Your Twitch App information
+      const clientId = "7n3exio0laqaf5ze06564vja89gv2y"; //YOUR_CLIENT_ID
+      const oAuthToken = "4zlhjaa49lwktb4j70c5vhrp4o347r"; //YOUR_OAUTH_TOKEN
+      const twitchUsername = "gamerWOT9"; //YOUR_TWITCH_USERNAME
+      const channelName = "gamerWOT9"; //YOUR_TWITCH_CHANNEL_NAME
+      
+      let x = 50;
+      let y = 50;
+      let characterWidth = 50;
+      let characterHeight = 50;
+      
+      // Connect to Twitch chat
+      const twitchChat = new WebSocket(`wss://irc-ws.chat.twitch.tv:443`);
+      
+      twitchChat.onopen = function (event) {
+        twitchChat.send(`PASS ${oAuthToken}`);
+        twitchChat.send(`NICK ${twitchUsername}`);
+        twitchChat.send(`JOIN #${channelName}`);
+      };
+      
+      twitchChat.onmessage = function (event) {
+        const message = event.data.split(` `);
+        const sender = message[0].split(`!`)[0].substring(1);
+        const chatMessage = message[3].substring(1);
+      
+        if (sender !== twitchUsername) {
+          if (chatMessage === "left") {
+            x -= 10;
+          } else if (chatMessage === "right") {
+            x += 10;
+          }
+        }
+      };
+      
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "red";
+        ctx.fillRect(x, y, characterWidth, characterHeight);
+        requestAnimationFrame(draw);
+      }
+      
+      draw();
+    </script>
+  </body>
+</html>
